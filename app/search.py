@@ -13,6 +13,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
+import time
 
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
@@ -114,8 +115,13 @@ class Searcher:
         # Embed in batches of 64 — fastembed is CPU-bound and that batch size is sweet spot.
         BATCH = 64
         points: list[PointStruct] = []
-        for start in range(0, len(self.docs), BATCH):
-            batch = self.docs[start:start + BATCH]
+        t_start = time.perf_counter()
+        total = len(self.docs)
+        for start in range(0, total, BATCH):
+            end = min(start + BATCH, total)
+            print(f"[lite] embedding docs {start}:{end} (batch size {BATCH})...", flush=True)
+            b_t0 = time.perf_counter()
+            batch = self.docs[start:end]
             texts = [d["title"] + " " + d["text"] for d in batch]
             vectors = list(self.embedder.embed(texts))
             for i, (d, v) in enumerate(zip(batch, vectors)):
@@ -124,7 +130,12 @@ class Searcher:
                     vector=v.tolist(),
                     payload={"doc_id": d["doc_id"], "title": d["title"], "text": d["text"]},
                 ))
+            b_elapsed = time.perf_counter() - b_t0
+            print(f"[lite] batch {start}:{end} done in {b_elapsed:.2f}s", flush=True)
+        total_elapsed = time.perf_counter() - t_start
+        print(f"[lite] embedding complete: {total} docs in {total_elapsed:.2f}s — upserting to Qdrant...", flush=True)
         self.client.upsert(collection_name=COLLECTION, points=points)
+        print("[lite] upsert complete", flush=True)
 
     # ── retrieval ───────────────────────────────────────────────────────
     @staticmethod

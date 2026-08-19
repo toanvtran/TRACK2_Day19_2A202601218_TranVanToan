@@ -1,13 +1,12 @@
 ## Day 19 — Vector Store + Feature Store lab.
 ## Two paths: lightweight (default, no Docker) and full Docker.
 
-VENV     := .venv
-PY       := $(VENV)/bin/python
-PIP      := $(VENV)/bin/pip
-JUPYTER  := $(VENV)/bin/jupyter
-JUPYTEXT := $(VENV)/bin/jupytext
-UVICORN  := $(VENV)/bin/uvicorn
-PYTEST   := $(VENV)/bin/pytest
+PY       := python
+PIP      := pip
+JUPYTER  := jupyter
+JUPYTEXT := jupytext
+UVICORN  := uvicorn
+PYTEST   := pytest
 
 .DEFAULT_GOAL := help
 
