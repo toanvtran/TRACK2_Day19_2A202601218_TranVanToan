@@ -1,7 +1,7 @@
 # Reflection — Lab 19
 
 **Tên:** _Trần Văn Toàn_
-**Cohort:** _A20_
+**Cohort:** 3B
 **Path đã chạy:** _lite_
 
 ---
